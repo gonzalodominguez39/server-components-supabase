@@ -1,38 +1,48 @@
 "use client";
+
 import { userType } from "@/app/types/user";
 import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-type UserItemProps = {
-  id: number;
-  first_name: string;
-  last_name: string;
-  age: number;
-  error?: string;
-  deleteLabel: string;
+type UserItemProps = userType & {
+onRefresh :()=>void
 };
 
+const supabase = createClient();
+
 export const UserItem = ({
+  id,
   first_name: firstName,
   last_name: lastName,
   age,
-  error,
-  deleteLabel,
+  onRefresh,
 }: UserItemProps) => {
-  const [error, setError] = useState<string | null>(null);
   const [deleteLabel, setDeleteLabel] = useState<string>("Eliminar");
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const loadUsers = async () => {
-    try {
-      const supabase = await createClient();
-      const { data } = await supabase.from("users").select();
-      console.log(data);
-    } catch (error) {}
-  };
+  const [error, setError] = useState<string | null>(null);
+
   const handleEditUser = () => {};
-  const handleDeleteUser = async () => {};
-  const handleConfirmDelete = () => {};
-  useEffect(() => {loadUsers()}, []);
+  const handleDeleteUser = async () => {
+    console.log("handledelete")
+    setDeleteLabel("eliminando..");
+    try {
+      const { error } = await supabase.from("users").delete().eq("id", id);
+      if (error) {
+        setError(error?.message);
+        return;
+      }
+      setDeleteLabel("eliminado");
+        onRefresh();
+    } catch (error:unknown) {
+       setError("ha ocurrido un error al eliminar el usuario");
+       console.log(error);
+    }
+  };
+  const handleConfirmDelete = () => {
+    setDeleteLabel("confirmar");
+    setConfirmDelete(true);
+  };
+
   return (
     <div className="mb-4">
       <div className="flex flex-row items-center">
@@ -40,11 +50,11 @@ export const UserItem = ({
         <p className="text-md ml-1">Edad {age}</p>
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error  && <p className="text-red-500 text-sm">{error}</p>}
 
       <button
         className="border-white text-white border-2 text-sm  px-4 rounded-sm"
-        onClick={confirmDelete ? handleDeleteUser : handleConfirmDelete}
+        onClick={confirmDelete ?handleDeleteUser : handleConfirmDelete}
       >
         {deleteLabel}
       </button>

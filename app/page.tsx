@@ -1,30 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { userType } from "./types/user";
+import { UserItem } from "@/components/UserItem";
 
 export default function Home() {
-    const initialState = {
+  const initialState = {
     id: -1,
     first_name: "",
     last_name: "",
     age: 0,
   };
 
-  const [formValues,setFormValues] = useState(initialState)
-  type user = {
-    id: number;
-    first_name: string;
-    last_name: string;
-    age: number;
-    created_at: string;
+  const [formValues, setFormValues] = useState(initialState);
+  const [users, setUsers] = useState<userType[]|null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+
+  const loadUsers = async () => {
+    try {
+      const supabase = await createClient();
+      const { data: users } = await supabase.from("users").select();
+      setUsers(users);
+    } catch (error: unknown) {
+      setError(error as string)
+      console.log("Error loading users:", error);
+    }
   };
 
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-  const handleFormChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
-    const {name,value}=e.target
-    setFormValues({...formValues,[name]:value})
-  }
-
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+  };
 
   return (
     <main className="bg-gray-600">
@@ -99,6 +111,15 @@ export default function Home() {
           </button>
         </div>
       </form>
+      <div>
+        {users ? (users.map((user)=>
+        <UserItem key={user.id} onRefresh={()=>{}} {...user} />)
+        ):
+        <div>
+          <p>{error}</p>
+        </div>
+        }
+      </div>
     </main>
   );
 }
