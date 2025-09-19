@@ -3,5 +3,5 @@ export   type userType = {
     first_name: string;
     last_name: string;
     age: number;
-    created_at: string;
+    created_at?: string;
   };

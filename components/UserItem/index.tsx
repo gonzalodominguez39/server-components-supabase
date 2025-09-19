@@ -6,6 +6,7 @@ import { useState } from "react";
 
 type UserItemProps = userType & {
 onRefresh :()=>void
+onEdit:(user:userType)=>void
 };
 
 const supabase = createClient();
@@ -16,12 +17,12 @@ export const UserItem = ({
   last_name: lastName,
   age,
   onRefresh,
+  onEdit,
 }: UserItemProps) => {
   const [deleteLabel, setDeleteLabel] = useState<string>("Eliminar");
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleEditUser = () => {};
   const handleDeleteUser = async () => {
     console.log("handledelete")
     setDeleteLabel("eliminando..");
@@ -61,7 +62,7 @@ export const UserItem = ({
 
       <button
         className="ml-2 bg-white text-sm text-black px-4 rounded-sm hover:bg-slate-200"
-        onClick={handleEditUser}
+        onClick={()=>onEdit({id,first_name:firstName,last_name:lastName,age})}
       >
         Editar
       </button>
