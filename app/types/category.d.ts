@@ -1,3 +1,5 @@
 export type categoryType = {
-    name: string;
+    
+  name: string;
+  
   };

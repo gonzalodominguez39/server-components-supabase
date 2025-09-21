@@ -5,8 +5,8 @@ import { categoryType } from "./category";
   id: number;
   title: string;
   description: string;
-  publish_date: string; // o Date si lo parseás
+  publish_date: string; 
   image: string;
-  categories: categoryType[]
-  authors: authorType[]
+  category: categoryType | categoryType[]
+  author: authorType|authorType[]
 };
